@@ -15,9 +15,16 @@ rule gatk_CombineGVCFs:
         "logs/gatk_CombineGVCFs/{family}.log"
     benchmark:
         "benchmarks/gatk_CombineGVCFs/{family}.tsv"
-    conda:
-        "../envs/gatk4.yaml"
+    singularity:
+        "docker://broadinstitute/gatk:4.2.6.1"
+    threads: 1
+    resources:
+        partition = config['PARTITION']['CPU']
     message:
         "Merging one or more HaplotypeCaller GVCF files into a single GVCF"
     shell:
-        "gatk CombineGVCFs -R {input.refgenome} {params.command} -O {output.vcf} --tmp-dir {params.tdir} {params.other} &> {log}"
+        'gatk CombineGVCFs '
+        '-R {input.refgenome} {params.command} '
+        '-O {output.vcf} 
+        '--tmp-dir {params.tdir} {params.other} '
+        '&> {log}'

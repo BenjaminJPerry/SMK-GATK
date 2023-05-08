@@ -5,7 +5,6 @@ rule gatk_BaseRecalibrator:
     output:
         report("../results/mapped/{sample}_recalibration_report.grp", caption = "../report/recalibration.rst", category = "Base recalibration")
     params:
-        maxmemory = expand('"-Xmx{maxmemory}"', maxmemory = config['MAXMEMORY']),
         tdir = config['TEMPDIR'],
         padding = get_wes_padding_command,
         intervals = get_wes_intervals_command,
@@ -14,9 +13,19 @@ rule gatk_BaseRecalibrator:
         "logs/gatk_BaseRecalibrator/{sample}.log"
     benchmark:
         "benchmarks/gatk_BaseRecalibrator/{sample}.tsv"
-    conda:
-        "../envs/gatk4.yaml"
+    singularity:
+        "docker://broadinstitute/gatk:4.2.6.1"
+    threads: 1
+    resources:
+        mem_mb = config['MAXMEMORY'],
+        partition = config['PARTITION']['CPU']
     message:
         "Generating a recalibration table for {input.bams}"
     shell:
-        "gatk BaseRecalibrator --java-options {params.maxmemory} -I {input.bams} -R {input.refgenome} -O {output} --tmp-dir {params.tdir} {params.padding} {params.intervals} {params.recalibration_resources} &> {log}"
+        'gatk BaseRecalibrator '
+        '--java-options "-Xmx{resources.mem_mb}m" '
+        '-I {input.bams} '
+        '-R {input.refgenome} '
+        '-O {output} '
+        '--tmp-dir {params.tdir} {params.padding} {params.intervals} {params.recalibration_resources} '
+        '&> {log}'

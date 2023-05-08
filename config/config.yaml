@@ -3,19 +3,19 @@
 ##############################
 
 # Type of input data (either 'Single' or 'Cohort')
-DATA: ""
+DATA: "Cohort"
 
 # Should the pipeline be GPU accelerated where possible? (either 'Yes' or 'No')
-GPU_ACCELERATED: ""
+GPU_ACCELERATED: "Yes"
 
 # File path to the reference genome (.fasta)
-REFGENOME: ""
+REFGENOME: "../../TESTREF.FA"
 
 # File path to dbSNP database
-dbSNP: ""
+dbSNP: "../../TESTDB"
 
 # Temporary file directory
-TEMPDIR: ""
+TEMPDIR: "../tmp"
 
 # Whole exome sequence settings (leave blank if analysing other data such as whole genome sequence data)
 WES:
@@ -29,24 +29,34 @@ WES:
 ##############################
 
 # Number of threads to use per rule/sample for multithreaded rules, multithreading will significantly speed up these rules (diminishing speed gains beyond 8 threads)
-THREADS:
+# Defaults to 1 thread as per config/slurm/config.yaml
+#TODO Consider declaring threads at a rule level
+THREADS: 8
 
-# Maximum memory usage per rule/sample (eg. '40g' for 40 gigabytes, this should suffice for exomes)
-MAXMEMORY: ""
+# Memory requested for rules in no in mb, do not include unit with integer (e.g. 1G = 1000).
+# Default memory set to 1000 - see config/slurm/config.yaml
+# rule level declarations for memory (resources.mem_mb) will supersede, and can be configured to be dynamic based on attempts 
+MAXMEMORY: 8000
 
 # Maximum number of GPU's to be used per rule/sample for gpu-accelerated runs (eg `1` for 1 GPU)
-GPU:
+GPU: 1
+
+# Include GPU or CPU partitions for jobs to run on.
+# Rule level partitions can be indicated in the 'resources:' directive of a rule in the rules/*.smk files
+PARTITION:
+  CPU: "TEST"
+  GPU: "TEST"
 
 ##############################
 ########## Trimming ##########
 ##############################
 
 # Whether or not to trim the raw fastq reads (either 'Yes' or 'No')
-TRIM: ""
+TRIM: "Yes"
 
 # If trimming, choose the adapter sequence to be trimmed (eg. `--illumina`, `--nextera` or `--small_rna`) or pass adapter sequences to the `-a` and `-a2` flags
 TRIMMING:
-  ADAPTERS: ""
+  ADAPTERS: "--illumina"
 
 ##############################
 ##### Base recalibration #####
@@ -54,7 +64,4 @@ TRIMMING:
 
 # List of resources to used for base recalibration
 RECALIBRATION:
-  RESOURCES:
-    -
-    -
-    -
+  RESOURCES: "TEST"

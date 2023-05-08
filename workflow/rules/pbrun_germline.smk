@@ -7,8 +7,6 @@ rule pbrun_germline:
         bam_index = protected("../results/mapped/{sample}_recalibrated.bam.bai"),
         vcf = get_output_vcf(config),
         recal = temp("../results/mapped/{sample}_recal.txt")
-    resources:
-        gpu = config['GPU']
     params:
         readgroup = "--read-group-sm {sample}",
         tdir = config['TEMPDIR'],
@@ -21,7 +19,20 @@ rule pbrun_germline:
     benchmark:
         "benchmarks/pbrun_germline/{sample}.tsv"
     threads: config['THREADS']
+    resources:
+        gpu = config['GPU'],
+        partition = config['PARTITION']['GPU'],
+        job_name = "pbrun_germline_gpu"
     message:
         "Running GPU accelerated germline variant pipeline workflow to generate BAM, vcf and recal output for {input.fastq}"
     shell:
-        "pbrun germline --ref {input.refgenome} --in-fq {input.fastq} {params.recalibration_resources} --out-bam {output.bam} --out-variants {output.vcf} --out-recal-file {output.recal} --num-gpus {resources.gpu} {params.readgroup} --tmp-dir {params.tdir} {params.padding} {params.intervals} {params.other_params} --num-cpu-threads {threads} &> {log}"
+        'pbrun germline '
+        '--ref {input.refgenome} '
+        '--in-fq {input.fastq} {params.recalibration_resources} '
+        '--out-bam {output.bam} '
+        '--out-variants {output.vcf} '
+        '--out-recal-file {output.recal} '
+        '--num-gpus {resources.gpu} {params.readgroup} '
+        '--tmp-dir {params.tdir} {params.padding} {params.intervals} {params.other_params} '
+        '--num-cpu-threads {threads} '
+        '&> {log}'
