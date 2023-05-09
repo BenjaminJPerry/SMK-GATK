@@ -15,14 +15,13 @@ rule pbrun_germline:
         recalibration_resources = get_recal_resources_command,
         other_params = get_params
     log:
-        "logs/pbrun_germline/{sample}.log"
+        "logs/pbrun_germline.{sample}.log"
     benchmark:
         "benchmarks/pbrun_germline/{sample}.tsv"
-    threads: config['THREADS']
+    threads: 8
     resources:
         gpu = config['GPU'],
         partition = config['PARTITION']['GPU'],
-        job_name = "pbrun_germline_gpu"
     message:
         "Running GPU accelerated germline variant pipeline workflow to generate BAM, vcf and recal output for {input.fastq}"
     shell:

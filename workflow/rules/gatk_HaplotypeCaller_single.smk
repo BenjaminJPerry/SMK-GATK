@@ -1,10 +1,10 @@
 rule gatk_HaplotypeCaller_single:
     input:
-        bams = "../results/mapped/{sample}_recalibrated.bam",
+        bams = "results/mapped/{sample}_recalibrated.bam",
         refgenome = expand("{refgenome}", refgenome = config['REFGENOME']),
-        dbsnp = expand("{dbsnp}", dbsnp = config['dbSNP'])
+        # dbsnp = expand("{dbsnp}", dbsnp = config['dbSNP'])
     output:
-        protected("../results/called/{sample}_raw_snps_indels.vcf")
+        protected("results/called/{sample}_raw_snps_indels.vcf")
     params:
         tdir = config['TEMPDIR'],
         padding = get_wes_padding_command,
@@ -15,18 +15,18 @@ rule gatk_HaplotypeCaller_single:
         "benchmarks/gatk_HaplotypeCaller_single/{sample}.tsv"
     singularity:
         "docker://broadinstitute/gatk:4.2.6.1"
-    threads: 1
+    threads: 2
     resources:
-        mem_mb = config['MAXMEMORY'],
-        partition = config['PARTITION']['CPU']
+        mem_gb = 8,
+        # partition = config['PARTITION']['CPU']
     message:
         "Calling germline SNPs and indels via local re-assembly of haplotypes for {input.bams}"
     shell:
         'gatk HaplotypeCaller '
-        '--java-options "-Xmx{resources.mem_mb}m" '
+        '--java-options "-Xmx{resources.mem_gb}G" '
         '-I {input.bams} '
         '-R {input.refgenome} '
-        '-D {input.dbsnp} '
+        # '-D {input.dbsnp} '
         '-O {output} '
         '--tmp-dir {params.tdir} {params.padding} {params.intervals} '
         '&> {log}'

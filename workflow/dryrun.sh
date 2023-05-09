@@ -6,4 +6,4 @@ snakemake \
 --conda-frontend mamba \
 --use-singularity \
 --singularity-args '-B /bind/location/' \
---configfile ../config/config.yaml
+--configfile config/config.yaml

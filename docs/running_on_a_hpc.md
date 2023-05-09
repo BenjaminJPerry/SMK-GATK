@@ -289,7 +289,7 @@ snakemake \
 --latency-wait 120 \
 --use-singularity \
 --singularity-args '-B /scratch/' \
---configfile ../config/config.yaml \
+--configfile config/config.yaml \
 --cluster-config ../config/cluster.json \
 --cluster "sbatch -A {cluster.account} \
 -p {cluster.partition} \
@@ -310,7 +310,7 @@ snakemake \
 --latency-wait 120 \
 --use-singularity \
 --singularity-args '-B /scratch/' \
---configfile ../config/config.yaml \
+--configfile config/config.yaml \
 --cluster-config ../config/cluster.json \
 --cluster "sbatch -A {cluster.account} \
 -p {cluster.partition} \

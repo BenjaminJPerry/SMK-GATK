@@ -265,7 +265,7 @@ snakemake \
 --latency-wait 120 \
 --use-singularity \
 --singularity-args '-B /bind/location/' \
---configfile ../config/config.yaml
+--configfile config/config.yaml
 ```
 
 Full run (run.sh):
@@ -282,7 +282,7 @@ snakemake \
 --latency-wait 120 \
 --use-singularity \
 --singularity-args '-B /bind/location/' \
---configfile ../config/config.yaml
+--configfile config/config.yaml
 ```
 
 See the [snakemake documentation](https://snakemake.readthedocs.io/en/v4.5.1/executable.html#all-options) for additional run parameters.

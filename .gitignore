@@ -1,0 +1,11 @@
+.cache
+.config
+.java
+.snakemake
+benchmarks
+logs
+ref
+slurm_logs
+fastq/*.gz
+results
+

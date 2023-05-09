@@ -1,16 +1,16 @@
 """
-Author: Miles Benton and Leah Kemp
-Affiliation: ESR
+Author: Miles Benton and Leah Kemp - Modified: Benjamin Perry 2023
+Affiliation: ESR; AgResearch
 Aim: A simple Snakemake workflow to process paired-end sequencing data (WGS) using bwa/GATK4. Designed to be used before vcf_annotation_pipeline.
 Date created: 2019-08-21
-Modified: 2020-10-09
+Modified: 2023-05-08
 """
 
 ##### Set up wildcards #####
 
 # Define samples from fastq dir and families/cohorts from pedigree dir using wildcards
-SAMPLES, = glob_wildcards("../../fastq/{sample}_1.fastq.gz")
-FAMILIES, = glob_wildcards("../../pedigrees/{family}_pedigree.ped")
+SAMPLES, = glob_wildcards("fastq/{sample}_R1.fastq.gz")
+FAMILIES, = glob_wildcards("pedigrees/{family}_pedigree.ped")
 
 ##### Setup helper functions #####
 import csv
@@ -24,9 +24,9 @@ def get_input_fastq(command):
     input_files = ""
 
     if config['TRIM'] == "No" or config['TRIM'] == "no":
-        input_files = ["../../fastq/{sample}_1.fastq.gz", "../../fastq/{sample}_2.fastq.gz"]
+        input_files = ["fastq/{sample}_R1.fastq.gz", "../../fastq/{sample}_R2.fastq.gz"]
     if config['TRIM'] == "Yes" or config['TRIM'] == "yes":
-        input_files = ["../results/trimmed/{sample}_1_val_1.fq.gz", "../results/trimmed/{sample}_2_val_2.fq.gz"]
+        input_files = ["results/trimmed/{sample}_R1_val_1.fq.gz", "results/trimmed/{sample}_R2_val_2.fq.gz"]
 
     return input_files
 
@@ -38,9 +38,9 @@ def get_output_vcf(config):
     vcf = ""
 
     if config['DATA'] == "Single" or config['DATA'] == 'single':
-        vcf = "../results/called/{sample}_raw_snps_indels.vcf"
+        vcf = "results/called/{sample}_raw_snps_indels.vcf"
     if config['DATA'] == "Cohort" or config['DATA'] == 'cohort':
-        vcf = "../results/called/{sample}_raw_snps_indels_tmp.g.vcf"
+        vcf = "results/called/{sample}_raw_snps_indels_tmp.g.vcf"
 
     return vcf
 
@@ -63,14 +63,14 @@ def get_gatk_combinegvcf_command(family):
     command is used by the gatk_CombineGVCFs rule. For a particular family, we construct the gatk command by adding
     -V <individual vcf file> for each individual (defined by individual id column in the pedigree file)
     """
-    filename = "../../pedigrees/" + str(family) + "_pedigree.ped"
+    filename = "pedigrees/" + str(family) + "_pedigree.ped"
     
     command = ""
     with open(filename, newline = '') as pedigree:
 
         pedigree_reader = csv.DictReader(pedigree, fieldnames = ('family', 'individual_id', 'paternal_id', 'maternal_id', 'sex', 'phenotype'), delimiter='\t')
         for individual in pedigree_reader:
-            command += "-V ../results/called/" + individual['individual_id'] + "_raw_snps_indels_tmp.g.vcf "
+            command += "-V results/called/" + individual['individual_id'] + "_raw_snps_indels_tmp.g.vcf "
 
     return command
 
@@ -79,14 +79,14 @@ def get_parabricks_combinegvcf_command(family):
     command is used by the gatk_triocombinegvcf rule. For a particular family, we construct the gatk command by adding
     -V <individual vcf file> for each individual (defined by individual id column in the pedigree file)
     """
-    filename = "../../pedigrees/" + str(family) + "_pedigree.ped"
+    filename = "pedigrees/" + str(family) + "_pedigree.ped"
     
     command = ""
     with open(filename, newline = '') as pedigree:
 
         pedigree_reader = csv.DictReader(pedigree, fieldnames = ('family', 'individual_id', 'paternal_id', 'maternal_id', 'sex', 'phenotype'), delimiter='\t')
         for individual in pedigree_reader:
-            command += "--in-gvcf ../results/called/" + individual['individual_id'] + "_raw_snps_indels_tmp.g.vcf "
+            command += "--in-gvcf results/called/" + individual['individual_id'] + "_raw_snps_indels_tmp.g.vcf "
 
     return command
 
@@ -153,17 +153,17 @@ report: "report/workflow.rst"
 if config['DATA'] == "Single" or config['DATA'] == 'single':
     rule all:
         input:
-            "../results/qc/multiqc_report.html",
-            expand("../results/mapped/{sample}_recalibrated.bam", sample = SAMPLES),
-            expand("../results/called/{sample}_raw_snps_indels.vcf", sample = SAMPLES),
+            "results/qc/multiqc_report.html",
+            expand("results/mapped/{sample}_recalibrated.bam", sample = SAMPLES),
+            expand("results/called/{sample}_raw_snps_indels.vcf", sample = SAMPLES),
             
 
 if config['DATA'] == "Cohort" or config['DATA'] == 'cohort':
     rule all:
         input:
-            "../results/qc/multiqc_report.html",
-            expand("../results/mapped/{sample}_recalibrated.bam", sample = SAMPLES),
-            expand("../results/called/{family}_raw_snps_indels.vcf", family = FAMILIES)
+            "results/qc/multiqc_report.html",
+            expand("results/mapped/{sample}_recalibrated.bam", sample = SAMPLES),
+            expand("results/called/{family}_raw_snps_indels.vcf", family = FAMILIES)
 
 ##### Load rules #####
 

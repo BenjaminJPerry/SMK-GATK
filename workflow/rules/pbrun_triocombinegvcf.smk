@@ -7,14 +7,13 @@ rule pbrun_triocombinegvcf:
     params:
         command = get_parabricks_combinegvcf_command
     log:
-        "logs/pbrun_triocombinegvcf/{family}.log"
+        "logs/pbrun_triocombinegvcf.{family}.log"
     benchmark:
         "benchmarks/pbrun_triocombinegvcf/{family}.tsv"
-    threads: config['THREADS']
+    threads: 8
     resources:
         gpu = config['GPU'],
         partition = config['PARTITION']['GPU'],
-        job_name = "pbrun_triocombinegvcf_gpu"
     message:
         "Merging one or more HaplotypeCaller GVCF files into a single GVCF"
     shell:
